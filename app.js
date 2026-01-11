@@ -7,7 +7,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const apiRoutes = require('./routes/api.routes');
+
 const config = require('./config/app.config');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
@@ -36,10 +36,20 @@ app.use(cors());
  */
 app.use(express.json());
 
-// --- Routes ---
+// Spec-First Validation & Routing
+app.use(
+    OpenApiValidator.middleware({
+        apiSpec: './openapi.yaml',
+        validateRequests: true,
+        validateResponses: false,
+        ignorePaths: (path) => path.startsWith('/api/docs'),
+        operationHandlers: path.join(__dirname, 'controllers'), // Enable auto-routing
+    }),
+);
 
-// Подключение всех API маршрутов под префиксом /api
-app.use('/api', apiRoutes);
+// --- Routes ---
+// Маршруты теперь автоматически генерируются на основе openapi.yaml и поля x-eov-operation-handler
+
 
 // Global Error Handler
 app.use((err, req, res, next) => {

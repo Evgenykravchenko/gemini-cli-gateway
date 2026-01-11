@@ -61,6 +61,8 @@ paths:
     get:
       summary: Проверка здоровья (Health check)
       description: Возвращает статус и время работы сервиса.
+      x-eov-operation-handler: chat.controller
+      operationId: healthCheck
       responses:
         '200':
           description: Сервис работает нормально
@@ -81,6 +83,8 @@ paths:
     get:
       summary: Список моделей
       description: Возвращает список доступных моделей Gemini и модель по умолчанию.
+      x-eov-operation-handler: chat.controller
+      operationId: getModels
       responses:
         '200':
           description: Успешный ответ
@@ -107,6 +111,8 @@ paths:
     post:
       summary: Стандартный чат
       description: Отправляет запрос и возвращает полный ответ (без стриминга).
+      x-eov-operation-handler: chat.controller
+      operationId: handleStandardChat
       requestBody:
         required: true
         content:
@@ -131,6 +137,8 @@ paths:
     post:
       summary: Потоковый чат (Streaming)
       description: Отправляет запрос и возвращает ответ в виде потока событий (SSE).
+      x-eov-operation-handler: chat.controller
+      operationId: handleStreamChat
       requestBody:
         required: true
         content:
