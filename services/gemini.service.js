@@ -19,10 +19,22 @@ class GeminiService {
         this.requestQueue = [];
     }
 
-    _buildArgs(system, prompt, model, stream = false) {
-        const fullPrompt = system
-            ? `System Instruction: ${system}\n\nUser Request: ${prompt}`
-            : prompt;
+    _buildArgs(messages, model, stream = false) {
+        let fullPrompt = '';
+
+        if (Array.isArray(messages)) {
+            fullPrompt = messages.map(msg => {
+                let prefix = 'User';
+                if (msg.role === 'system') prefix = 'System Instruction';
+                else if (msg.role === 'assistant') prefix = 'Model';
+                else if (msg.role === 'user') prefix = 'User';
+                return `${prefix}: ${msg.content}`;
+            }).join('\n\n');
+        } else {
+            // Legacy/Fallback input
+            fullPrompt = String(messages);
+        }
+
         const args = [fullPrompt, '-m', model];
         if (stream) {
             args.push('-o', 'stream-json');
@@ -38,7 +50,7 @@ class GeminiService {
      * Создает процесс генерации, соблюдая лимит одновременных запросов.
      * Возвращает Promise, который резолвится в ChildProcess, когда подойдет очередь.
      */
-    async createProcessBuffered(system, prompt, model, isStream) {
+    async createProcessBuffered(messages, model, isStream) {
         // Если слотов нет — ждем в очереди
         if (this.activeRequests >= this.maxConcurrent) {
             console.log(`[Queue] Limit reached (${this.activeRequests}/${this.maxConcurrent}). Request queued.`);
@@ -46,7 +58,7 @@ class GeminiService {
         }
 
         this.activeRequests++;
-        const args = this._buildArgs(system, prompt, model, isStream);
+        const args = this._buildArgs(messages, model, isStream);
         const child = spawn(this.cliCommand, args);
 
         const onFinish = () => {
