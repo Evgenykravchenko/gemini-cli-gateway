@@ -1,0 +1,19 @@
+{
+  "name": "gemini-cli-api",
+  "version": "1.0.0",
+  "description": "High-performance Node.js wrapper for Google Gemini CLI",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "morgan": "^1.10.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
