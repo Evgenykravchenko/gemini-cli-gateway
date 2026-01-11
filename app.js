@@ -36,6 +36,16 @@ app.use(cors());
  */
 app.use(express.json());
 
+// --- Public Routes (Before Auth) ---
+
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString()
+    });
+});
+
 /**
  * Аутентификация по API ключу.
  * Проверяет заголовок x-api-key для всех маршрутов кроме публичных.

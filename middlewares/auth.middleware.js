@@ -7,9 +7,9 @@ const config = require('../config/app.config');
 
 module.exports = (req, res, next) => {
     // Список публичных путей, которые не требуют авторизации
+    // /api/health обрабатывается явно в app.js ДО этого middleware
     const publicPaths = [
         '/api/docs',   // Swagger UI и JSON спека
-        '/api/health', // Health Check
         '/favicon.ico'
     ];
 
