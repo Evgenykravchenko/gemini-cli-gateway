@@ -9,8 +9,14 @@ const cors = require('cors');
 const morgan = require('morgan');
 const apiRoutes = require('./routes/api.routes');
 const config = require('./config/app.config');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const OpenApiValidator = require('express-openapi-validator');
+const path = require('path');
 
 const app = express();
+
+const swaggerDocument = YAML.load('./openapi.yaml');
 
 // --- Middlewares ---
 
@@ -34,6 +40,19 @@ app.use(express.json());
 
 // Подключение всех API маршрутов под префиксом /api
 app.use('/api', apiRoutes);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    // Format validation errors
+    if (err.status || err.errors) {
+        return res.status(err.status || 500).json({
+            status: 'error',
+            message: err.message,
+            errors: err.errors,
+        });
+    }
+    next(err);
+});
 
 // --- Server Start ---
 
