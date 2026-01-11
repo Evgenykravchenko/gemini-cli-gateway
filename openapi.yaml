@@ -1,0 +1,147 @@
+openapi: 3.0.0
+info:
+  title: Gemini CLI API Gateway
+  description: API шлюз для взаимодействия с моделями Google Gemini через HTTP.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Локальный сервер разработки
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - prompt
+      properties:
+        prompt:
+          type: string
+          description: Текст запроса к модели.
+          example: "Расскажи шутку про Linux."
+        system:
+          type: string
+          description: Системная инструкция или роль для модели.
+          example: "Ты полезный помощник-программист."
+        model:
+          type: string
+          description: ID модели для использования.
+          default: "gemini-2.5-flash-lite"
+          example: "gemini-2.5-flash"
+    
+    ChatResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        model:
+          type: string
+          example: "gemini-2.5-flash"
+        response:
+          type: string
+          description: Сгенерированный текстовый ответ.
+    
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "error"
+        message:
+          type: string
+          description: Описание ошибки.
+        errors:
+          type: array
+          items:
+            type: object
+            description: Детали валидации.
+
+paths:
+  /api/health:
+    get:
+      summary: Проверка здоровья (Health check)
+      description: Возвращает статус и время работы сервиса.
+      responses:
+        '200':
+          description: Сервис работает нормально
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  uptime:
+                    type: number
+                  timestamp:
+                    type: string
+
+  /api/models:
+    get:
+      summary: Список моделей
+      description: Возвращает список доступных моделей Gemini и модель по умолчанию.
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  default_model:
+                    type: string
+                  available_models:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+
+  /api/chat:
+    post:
+      summary: Стандартный чат
+      description: Отправляет запрос и возвращает полный ответ (без стриминга).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Успешная генерация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/chat/stream:
+    post:
+      summary: Потоковый чат (Streaming)
+      description: Отправляет запрос и возвращает ответ в виде потока событий (SSE).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Поток событий SSE
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                example: "data: {...}"
