@@ -1,0 +1,44 @@
+### Проверка здоровья (Health Check)
+GET http://localhost:3000/api/health
+
+###
+
+### Получить список моделей
+GET http://localhost:3000/api/models
+
+###
+
+### Стандартный чат (Обычный запрос)
+POST http://localhost:3000/api/chat
+Content-Type: application/json
+
+{
+    "prompt": "Привет, как дела?",
+    "system": "Ты дружелюбный ассистент",
+    "model": "gemini-2.5-flash-lite"
+}
+
+###
+
+### Тест ошибки (Невалидная модель)
+POST http://localhost:3000/api/chat
+Content-Type: application/json
+
+{
+    "prompt": "Test",
+    "model": "invalid-model-id"
+}
+
+###
+
+### Потоковый чат (Streaming SSE)
+# Примечание: В IDE ответ может буферизироваться. Лучше проверять через curl -N
+POST http://localhost:3000/api/chat/stream
+Content-Type: application/json
+Cache-Control: no-cache
+Accept: text/event-stream
+
+{
+    "prompt": "Напиши короткое стихотворение про программиста",
+    "model": "gemini-2.5-flash"
+}
