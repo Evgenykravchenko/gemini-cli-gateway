@@ -15,6 +15,12 @@ const config = {
 
     /**
      * @type {string}
+     * @description Секретный ключ для авторизации (API Key).
+     */
+    API_KEY: process.env.APP_API_KEY,
+
+    /**
+     * @type {string}
      * @description Текущее окружение (production/development).
      */
     NODE_ENV: process.env.NODE_ENV || 'development',

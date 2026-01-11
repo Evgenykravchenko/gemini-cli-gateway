@@ -7,7 +7,17 @@ servers:
   - url: http://localhost:3000
     description: Локальный сервер разработки
 
+security:
+  - ApiKeyAuth: []
+
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: Секретный ключ доступа к API.
+
   schemas:
     ChatRequest:
       type: object
