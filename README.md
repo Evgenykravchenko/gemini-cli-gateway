@@ -1,6 +1,6 @@
 # Gemini CLI API Gateway
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-2.0.1-blue.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D20-green.svg)
 ![Docker](https://img.shields.io/badge/docker-ready-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
@@ -81,6 +81,9 @@ GEMINI_CLI_COMMAND=gemini
 
 # Максимальное количество одновременных запросов
 GEMINI_MAX_CONCURRENT_REQUESTS=2
+
+# API Key (Обязательно для v2.0+)
+APP_API_KEY=your_secret_key_here
 ```
 
 ### 4. Запуск в Docker
@@ -158,6 +161,7 @@ docker compose up -d --build
 ```bash
 curl -X POST http://localhost:3000/api/chat \
   -H "Content-Type: application/json" \
+  -H "x-api-key: your_secret_key_here" \
   -d '{
     "prompt": "Расскажи шутку про Linux",
     "system": "Ты веселый робот",
@@ -188,6 +192,7 @@ curl -X POST http://localhost:3000/api/chat \
 ```bash
 curl -N -X POST http://localhost:3000/api/chat/stream \
   -H "Content-Type: application/json" \
+  -H "x-api-key: your_secret_key_here" \
   -d '{"prompt": "Напиши поэму"}'
 ```
 
@@ -230,9 +235,12 @@ gemini-service/
 
 ## 🛡 Безопасность и Рекомендации
 
-1. **API Keys**: Никогда не публикуйте папку `.gemini` в публичные репозитории.
-2. **CORS**: В текущей конфигурации CORS разрешен для всех (`*`). Для продакшена рекомендуется ограничить список доменов в `app.js`.
-3. **Ресурсы**: На Raspberry Pi с малым объемом памяти (1GB) рекомендуется ограничить ресурсы контейнера в `docker-compose.yml`.
+1. **API Keys (Auth)**: Начиная с версии 2.0.0, сервер **требует** заголовок `x-api-key` для всех критических операций (`/api/chat`).
+   - Маршруты `/api/health` и `/api/docs` остаются публичными.
+   - Задайте сложный ключ в переменной `APP_API_KEY`.
+2. **Google Credentials**: Никогда не публикуйте папку `.gemini` в публичные репозитории.
+3. **CORS**: В текущей конфигурации CORS разрешен для всех (`*`). Для продакшена рекомендуется ограничить список доменов в `app.js`.
+4. **Ресурсы**: На Raspberry Pi с малым объемом памяти (1GB) рекомендуется ограничить ресурсы контейнера в `docker-compose.yml`.
 
 ## 📄 Лицензия
 
