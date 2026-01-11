@@ -37,6 +37,13 @@ app.use(cors());
 app.use(express.json());
 
 /**
+ * Аутентификация по API ключу.
+ * Проверяет заголовок x-api-key для всех маршрутов кроме публичных.
+ */
+const authMiddleware = require('./middlewares/auth.middleware');
+app.use(authMiddleware);
+
+/**
  * Swagger UI Documentation.
  */
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
