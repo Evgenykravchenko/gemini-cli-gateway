@@ -71,13 +71,9 @@ class ChatController {
      * @param {Response} res
      */
     async handleStandardChat(req, res) {
-        const { prompt, system, model } = req.body;
-
-        // 1. Валидация входных данных
-        if (!prompt || typeof prompt !== 'string') {
-            return res.status(400).json({ error: 'Field "prompt" is required and must be a string' });
-        }
-
+        // Валидация входных данных теперь выполняется автоматически через OpenAPI Validator
+        const { system, prompt, model } = req.body;
+        // Модель по default проставляется в config/openapi, но мы можем подстраховаться
         const selectedModel = model || config.gemini.DEFAULT_MODEL;
 
         // Валидация модели: проверяем, есть ли такой ID в списке разрешенных
