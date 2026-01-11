@@ -88,7 +88,7 @@ GEMINI_MAX_CONCURRENT_REQUESTS=2
 Соберите и запустите контейнер в фоновом режиме:
 
 ```bash
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 ---
