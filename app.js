@@ -36,6 +36,11 @@ app.use(cors());
  */
 app.use(express.json());
 
+/**
+ * Swagger UI Documentation.
+ */
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // Spec-First Validation & Routing
 app.use(
     OpenApiValidator.middleware({
