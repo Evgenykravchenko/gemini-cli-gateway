@@ -152,8 +152,9 @@ docker compose up -d --build
 - **Method:** `POST`
 - **Content-Type:** `application/json`
 - **Body Parameters:**
-- `prompt` (string, required): Текст запроса.
-- `system` (string, optional): Системная инструкция/роль.
+- `messages` (array, required): История диалога.
+  - `role` (string): 'user', 'system' или 'assistant'.
+  - `content` (string): Текст сообщения.
 - `model` (string, optional): ID модели (например, `gemini-1.5-pro`).
 
 - **Пример запроса (cURL):**
@@ -163,8 +164,10 @@ curl -X POST http://localhost:3000/api/chat \
   -H "Content-Type: application/json" \
   -H "x-api-key: your_secret_key_here" \
   -d '{
-    "prompt": "Расскажи шутку про Linux",
-    "system": "Ты веселый робот",
+    "messages": [
+      { "role": "system", "content": "Ты веселый робот" },
+      { "role": "user", "content": "Расскажи шутку про Linux" }
+    ],
     "model": "gemini-2.5-flash"
   }'
 ```
@@ -193,7 +196,11 @@ curl -X POST http://localhost:3000/api/chat \
 curl -N -X POST http://localhost:3000/api/chat/stream \
   -H "Content-Type: application/json" \
   -H "x-api-key: your_secret_key_here" \
-  -d '{"prompt": "Напиши поэму"}'
+  -d '{
+    "messages": [
+      { "role": "user", "content": "Напиши поэму" }
+    ]
+  }'
 ```
 
 - **Формат потока:**

@@ -1,44 +1,52 @@
-### Проверка здоровья (Health Check)
-GET http://localhost:3000/api/health
+@baseUrl = http://localhost:3000
+@authToken = ad3b1365c5336fe28ccf0db4763f041da6b36227c2e18c89
+
+### 1. Проверка здоровья (Health Check)
+# Публичный доступ (без ключа)
+GET {{baseUrl}}/api/health
 
 ###
 
-### Получить список моделей
-GET http://localhost:3000/api/models
+### 2. Список моделей (Protected)
+GET {{baseUrl}}/api/models
+x-api-key: {{authToken}}
 
 ###
 
-### Стандартный чат (Обычный запрос)
-POST http://localhost:3000/api/chat
+### 3. Стандартный чат (Chat History)
+POST {{baseUrl}}/api/chat
 Content-Type: application/json
+x-api-key: {{authToken}}
 
 {
-    "prompt": "Привет, как дела?",
-    "system": "Ты дружелюбный ассистент",
+    "messages": [
+        { "role": "system", "content": "Ты - опытный JS разработчик." },
+        { "role": "user", "content": "Как отсортировать массив объектов?" }
+    ],
     "model": "gemini-2.5-flash-lite"
 }
 
 ###
 
-### Тест ошибки (Невалидная модель)
-POST http://localhost:3000/api/chat
+### 4. Тест ошибки (Нет ключа)
+POST {{baseUrl}}/api/chat
 Content-Type: application/json
 
 {
-    "prompt": "Test",
-    "model": "invalid-model-id"
+    "messages": [{ "role": "user", "content": "Hack access" }]
 }
 
 ###
 
-### Потоковый чат (Streaming SSE)
-# Примечание: В IDE ответ может буферизироваться. Лучше проверять через curl -N
-POST http://localhost:3000/api/chat/stream
+### 5. Потоковый чат (Streaming SSE)
+POST {{baseUrl}}/api/chat/stream
 Content-Type: application/json
-Cache-Control: no-cache
 Accept: text/event-stream
+x-api-key: {{authToken}}
 
 {
-    "prompt": "Напиши короткое стихотворение про программиста",
+    "messages": [
+        { "role": "user", "content": "Напиши хокку про дождь." }
+    ],
     "model": "gemini-2.5-flash"
 }
