@@ -11,22 +11,45 @@ components:
   schemas:
     ChatRequest:
       type: object
-      required:
-        - prompt
       properties:
+        messages:
+          type: array
+          description: История сообщений диалога (контекст). Используйте вместо prompt/system.
+          items:
+            type: object
+            required:
+              - role
+              - content
+            properties:
+              role:
+                type: string
+                enum: [user, assistant, system]
+                description: Роль отправителя.
+                example: "user"
+              content:
+                type: string
+                description: Текст сообщения.
+                example: "Привет!"
         prompt:
           type: string
-          description: Текст запроса к модели.
-          example: "Расскажи шутку про Linux."
+          deprecated: true
+          description: (Устарело) Текст запроса.
         system:
           type: string
-          description: Системная инструкция или роль для модели.
-          example: "Ты полезный помощник-программист."
+          deprecated: true
+          description: (Устарело) Системная инструкция.
         model:
           type: string
-          description: ID модели для использования.
+          description: ID модели.
           default: "gemini-2.5-flash-lite"
           example: "gemini-2.5-flash"
+      example:
+        model: "gemini-2.5-flash"
+        messages:
+          - role: "system"
+            content: "Ты — опытный программист."
+          - role: "user"
+            content: "Как выйти из Vim?"
     
     ChatResponse:
       type: object
