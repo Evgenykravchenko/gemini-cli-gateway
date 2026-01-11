@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  gemini-api:
+    # Имя контейнера для удобства (вместо рандомного имени)
+    container_name: gemini-api
+    
+    # Сборка образа из текущей директории (.)
+    build: .
+    
+    # Политика перезапуска:
+    # unless-stopped = перезапускать всегда, кроме явной команды docker stop.
+    # Это гарантирует, что сервис поднимется сам после перезагрузки Raspberry Pi.
+    restart: unless-stopped
+    
+    # Проброс портов:
+    # [Порт на Raspberry Pi] : [Порт внутри контейнера]
+    ports:
+      - "${PORT}:3000"
+    
+    # Переменные окружения
+    env_file:
+      - .env
+
+    # Тома (Volumes) - самое важное место!
+    # Мы пробрасываем папку .gemini из корня проекта в /root/.gemini контейнера.
+    # Внутри контейнера процесс работает от root, поэтому путь жестко задан.
+    volumes:
+      - ./.gemini:/root/.gemini
+    
+    # Проверка здоровья (Healthcheck)
+    # Docker будет сам пинговать API каждые 30 секунд.
+    # Если healthcheck упадет, статус контейнера сменится на unhealthy.
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # Ограничение ресурсов (Опционально, полезно для Raspberry Pi)
+    # Если у вас Pi с малым объемом памяти (например, 1GB), можно раскомментировать.
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 512M
