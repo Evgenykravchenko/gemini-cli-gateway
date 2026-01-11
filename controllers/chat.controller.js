@@ -71,8 +71,21 @@ class ChatController {
      * @param {Response} res
      */
     async handleStandardChat(req, res) {
-        // Валидация входных данных теперь выполняется автоматически через OpenAPI Validator
-        const { system, prompt, model } = req.body;
+        // Валидация входных данных теперь выполняется автоматически через OpenAPI Validator,
+        // но так как мы поддерживаем и messages, и legacy prompt, нужно нормализовать формат.
+        const { messages, system, prompt, model } = req.body;
+
+        let conversation = messages;
+        if (!conversation || conversation.length === 0) {
+            if (prompt) {
+                conversation = [];
+                if (system) conversation.push({ role: 'system', content: system });
+                conversation.push({ role: 'user', content: prompt });
+            } else {
+                 return res.status(400).json({ error: 'Field "messages" or "prompt" is required' });
+            }
+        }
+
         // Модель по default проставляется в config/openapi, но мы можем подстраховаться
         const selectedModel = model || config.gemini.DEFAULT_MODEL;
 
@@ -85,7 +98,7 @@ class ChatController {
         }
 
         // 2. Запуск процесса через сервис (с ожиданием очереди)
-        const child = await geminiService.createProcessBuffered(system, prompt, selectedModel, false);
+        const child = await geminiService.createProcessBuffered(conversation, selectedModel, false);
 
         // Обработка ошибки запуска процесса (например, command not found)
         child.on('error', (err) => {
@@ -145,10 +158,17 @@ class ChatController {
      * @param {Response} res
      */
     async handleStreamChat(req, res) {
-        const { prompt, system, model } = req.body;
+        const { messages, prompt, system, model } = req.body;
 
-        if (!prompt) {
-            return res.status(400).json({ error: 'Field "prompt" is required' });
+        let conversation = messages;
+        if (!conversation || conversation.length === 0) {
+            if (prompt) {
+                 conversation = [];
+                 if (system) conversation.push({ role: 'system', content: system });
+                 conversation.push({ role: 'user', content: prompt });
+            } else {
+                return res.status(400).json({ error: 'Field "messages" or "prompt" is required' });
+            }
         }
 
         const selectedModel = model || config.gemini.DEFAULT_MODEL;
@@ -169,7 +189,7 @@ class ChatController {
         res.flushHeaders(); // Принудительная отправка заголовков
 
         // 2. Запуск процесса в режиме streaming JSON (с ожиданием очереди)
-        const child = await geminiService.createProcessBuffered(system, prompt, selectedModel, true);
+        const child = await geminiService.createProcessBuffered(conversation, selectedModel, true);
 
         // Обработка ошибки запуска процесса
         child.on('error', (err) => {
